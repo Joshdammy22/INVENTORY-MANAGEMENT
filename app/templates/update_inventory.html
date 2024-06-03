@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="container">
+        <h2>Update Inventory</h2>
+        <form method="POST" action="{{ url_for('update_inventory') }}">
+            {{ form.hidden_tag() }}
+            <div class="form-group">
+                {{ form.product.label(class="form-control-label") }}
+                {{ form.product(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.quantity.label(class="form-control-label") }}
+                {{ form.quantity(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.submit(class="btn btn-primary") }}
+            </div>
+        </form>
+    </div>
+{% endblock %}

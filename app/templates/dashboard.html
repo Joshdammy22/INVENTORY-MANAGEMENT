@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Inventory Management System{% endblock %}
+
+{% block content %}
+<div class="jumbotron text-center">
+    <h1 class="display-4">Welcome to the Inventory Management System</h1>
+    <p class="lead">Manage your inventory efficiently and effectively.</p>
+    {% if not current_user.is_authenticated %}
+        <hr class="my-4">
+        <p>
+            <a class="btn btn-primary btn-lg" href="{{ url_for('register') }}" role="button">Register</a>
+            <a class="btn btn-secondary btn-lg" href="{{ url_for('login') }}" role="button">Login</a>
+        </p>
+    {% endif %}
+</div>
+{% endblock %}
