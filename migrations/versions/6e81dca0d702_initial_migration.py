@@ -1,8 +1,8 @@
 """Initial migration
 
-Revision ID: bf3c01586054
+Revision ID: 6e81dca0d702
 Revises: 
-Create Date: 2024-06-03 23:12:35.398849
+Create Date: 2024-06-05 01:11:14.775333
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'bf3c01586054'
+revision = '6e81dca0d702'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -40,6 +40,8 @@ def upgrade():
     sa.Column('username', sa.String(length=64), nullable=True),
     sa.Column('email', sa.String(length=120), nullable=True),
     sa.Column('password_hash', sa.String(length=128), nullable=True),
+    sa.Column('role', sa.String(length=5), nullable=True),
+    sa.Column('is_admin', sa.Boolean(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     with op.batch_alter_table('user', schema=None) as batch_op:

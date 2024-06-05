@@ -6,3 +6,4 @@ instance/
 .vscode/
 venv
 redundant.txt
+create_admin.py

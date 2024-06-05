@@ -25,9 +25,16 @@
                             <button type="submit" class="btn btn-danger">Delete</button>
                         </form>
                     </td>
+                    <td>
+                        
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+                <h2>Users</h2>
+                {% for user in users %}
+                    <li>{{ user.username }} - {{ user.email }} {% if user.is_admin %} (Admin) {% endif %}</li>
+                {% endfor %}                    
     </div>
 {% endblock %}

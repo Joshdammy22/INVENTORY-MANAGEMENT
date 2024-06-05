@@ -26,7 +26,10 @@ class RegistrationForm(FlaskForm):
         if user is not None:
             raise ValidationError('Please use a different email address.')
 
-
+class AdminForm(FlaskForm):
+    # Example field, you can add more fields as required
+    example_field = StringField('Example Field', validators=[DataRequired()])
+    submit = SubmitField('Submit')
 
 class ProductForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired()])

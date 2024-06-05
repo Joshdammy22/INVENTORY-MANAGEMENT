@@ -1,7 +1,7 @@
 from flask import render_template, flash, redirect, url_for, request
 from app import app, db
-from app.forms import LoginForm, RegistrationForm
-from app.models import User
+from app.forms import *
+from app.models import *
 from urllib.parse import urlsplit  
 from flask_login import current_user, login_user, logout_user, login_required
 from functools import wraps
@@ -10,19 +10,39 @@ def role_required(role):
     def wrapper(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
-            if current_user.role != role:
+            if role == 'Admin' and not current_user.is_admin:
                 flash('You do not have permission to access this page.')
                 return redirect(url_for('home'))
             return f(*args, **kwargs)
         return decorated_function
     return wrapper
 
+
+@app.route('/promote_to_admin/<username>', methods=['GET', 'POST'])
+@login_required
+@role_required('admin')  
+def promote_to_admin(username):
+    user = User.query.filter_by(username=username).first()
+    if user:
+        user.is_admin = True
+        db.session.commit()
+        flash(f'User {username} has been promoted to admin.')
+    else:
+        flash(f'User {username} not found.')
+    return redirect(url_for('admin'))
+
+
 @app.route('/admin')
 @login_required
 @role_required('admin')
 def admin():
+    form = AdminForm()  # Create an instance of the form
+    if form.validate_on_submit():
+        # Handle form submission, for example, creating a new user or other admin tasks
+        flash('Form submitted successfully.')
+        return redirect(url_for('admin'))
     users = User.query.all()
-    return render_template('admin.html', title='Admin', users=users)
+    return render_template('admin.html', title='Admin', users=users, form=form)
 
 
 
@@ -42,6 +62,7 @@ def login():
             next_page = url_for('home')
         return redirect(next_page)
     return render_template('login.html', title='Login', form=form)
+
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
