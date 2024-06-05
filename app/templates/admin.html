@@ -3,6 +3,21 @@
 {% block content %}
     <div class="container">
         <h2>Admin Dashboard</h2>
+        
+        <!-- Navigation Links to Major Sections -->
+        <div class="admin-nav">
+            <ul>
+                <li><a href="{{ url_for('home') }}">Home</a></li>
+                <li><a href="{{ url_for('inventory') }}">Inventory</a></li>
+                <li><a href="{{ url_for('inventory') }}">Products</a></li>
+                <li><a href="{{ url_for('suppliers') }}">Suppliers</a></li>
+                <li><a href="{{ url_for('purchase_orders') }}">Purchase Orders</a></li>
+                <!-- Add more links as needed -->
+            </ul>
+        </div>
+
+        <!-- User Management Section -->
+        <h3>Users</h3>
         <table class="table table-bordered">
             <thead>
                 <tr>
@@ -25,16 +40,117 @@
                             <button type="submit" class="btn btn-danger">Delete</button>
                         </form>
                     </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Inventory Management Section -->
+        <h3>Inventory</h3>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Product Name</th>
+                    <th>Quantity</th>
+                    <th>Last Updated</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in inventory %}
+                <tr>
+                    <td>{{ item.product.name }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.last_updated }}</td>
                     <td>
-                        
+                        <a href="{{ url_for('edit_inventory', inventory_id=item.id) }}" class="btn btn-warning">Edit</a>
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
-                <h2>Users</h2>
-                {% for user in users %}
-                    <li>{{ user.username }} - {{ user.email }} {% if user.is_admin %} (Admin) {% endif %}</li>
-                {% endfor %}                    
+
+        <!-- Product Management Section -->
+        <h3>Products</h3>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Product Name</th>
+                    <th>Description</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Location</th>
+                    <th>Category</th>
+                    <th>Supplier</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                <tr>
+                    <td>{{ product.name }}</td>
+                    <td>{{ product.description }}</td>
+                    <td>{{ product.price }}</td>
+                    <td>{{ product.quantity }}</td>
+                    <td>{{ product.location }}</td>
+                    <td>{{ product.category.name }}</td>
+                    <td>{{ product.supplier.name }}</td>
+                    <td>
+                        <a href="{{ url_for('edit_product', product_id=product.id) }}" class="btn btn-warning">Edit</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Supplier Management Section -->
+        <h3>Suppliers</h3>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Supplier Name</th>
+                    <th>Contact Info</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for supplier in suppliers %}
+                <tr>
+                    <td>{{ supplier.name }}</td>
+                    <td>{{ supplier.contact_info }}</td>
+                    <td>
+                        <a href="{{ url_for('edit_supplier', supplier_id=supplier.id) }}" class="btn btn-warning">Edit</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Purchase Order Management Section -->
+        <h3>Purchase Orders</h3>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Supplier</th>
+                    <th>Status</th>
+                    <th>Order Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in purchase_orders %}
+                <tr>
+                    <td>{{ order.id }}</td>
+                    <td>{{ order.supplier.name }}</td>
+                    <td>{{ order.status }}</td>
+                    <td>{{ order.order_date }}</td>
+                    <td>
+                        <a href="{{ url_for('edit_purchase_order', order_id=order.id) }}" class="btn btn-warning">Edit</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 {% endblock %}

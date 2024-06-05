@@ -1,25 +1,109 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <div class="container">
-        <h2>Inventory</h2>
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>Product Name</th>
-                    <th>Quantity</th>
-                    <th>Last Updated</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in items %}
-                <tr>
-                    <td>{{ item.product.name }}</td>
-                    <td>{{ item.quantity }}</td>
-                    <td>{{ item.last_updated }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+<div class="container">
+    <h2>Inventory</h2>
+    <table class="table table-bordered" id="inventory-table">
+        <thead>
+            <tr>
+                <th>Product Name</th>
+                <th>Quantity</th>
+                <th>Last Updated</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+            <tr id="product-{{ item.product_id }}" data-product-id="{{ item.product_id }}">
+                <td>{{ item.product.name }}</td>
+                <td class="quantity">{{ item.quantity }}</td>
+                <td class="last-updated">{{ item.last_updated }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <!-- Barcode Scanner -->
+    <div id="scanner-container">
+        <h3>Scan Barcode</h3>
+        <div id="interactive" class="viewport"></div>
     </div>
+</div>
+
+<!-- Include QuaggaJS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
+<script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+<script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', function() {
+        var socket = io('/inventory');
+
+        socket.on('connect', function() {
+            console.log('Connected to Socket.IO server.');
+        });
+
+        socket.on('disconnect', function() {
+            console.log('Disconnected from Socket.IO server.');
+        });
+
+        socket.on('inventory_update', function(data) {
+            var productRow = document.getElementById('product-' + data.product_id);
+            if (productRow) {
+                productRow.querySelector('.quantity').textContent = data.quantity;
+                var currentDate = new Date();
+                productRow.querySelector('.last-updated').textContent = currentDate.toISOString();
+            }
+        });
+
+        Quagga.init({
+            inputStream: {
+                type: "LiveStream",
+                constraints: {
+                    width: 640,
+                    height: 480,
+                    facingMode: "environment" // or user for front camera
+                }
+            },
+            decoder: {
+                readers: ["code_128_reader", "ean_reader", "ean_8_reader", "code_39_reader", "code_39_vin_reader", "codabar_reader", "upc_reader", "upc_e_reader", "i2of5_reader"]
+            }
+        }, function(err) {
+            if (err) {
+                console.log(err);
+                return;
+            }
+            console.log("Initialization finished. Ready to start");
+            Quagga.start();
+        });
+
+        Quagga.onDetected(function(data) {
+            const code = data.codeResult.code;
+            alert("Barcode detected: " + code);
+
+            // Send barcode to backend for processing
+            fetch('/process_barcode', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ barcode: code })
+            }).then(response => response.json())
+              .then(data => {
+                  console.log(data);
+                  // Handle response
+                  if (data.status === 'success') {
+                      // Update inventory table if necessary
+                      var productRow = document.getElementById('product-' + data.product_id);
+                      if (productRow) {
+                          productRow.querySelector('.quantity').textContent = data.quantity;
+                          var currentDate = new Date();
+                          productRow.querySelector('.last-updated').textContent = currentDate.toISOString();
+                      }
+                  } else {
+                      console.error('Product not found');
+                  }
+              }).catch((error) => {
+                  console.error('Error:', error);
+              });
+        });
+    });
+</script>
 {% endblock %}

@@ -1,4 +1,4 @@
-from flask import render_template, flash, redirect, url_for, request
+from flask import render_template, flash, redirect, url_for, request, jsonify
 from app import app, db
 from app.forms import *
 from app.models import *
@@ -16,6 +16,28 @@ def role_required(role):
             return f(*args, **kwargs)
         return decorated_function
     return wrapper
+
+
+@app.route('/process_barcode', methods=['POST'])
+def process_barcode():
+    data = request.get_json()
+    barcode = data.get('barcode')
+    
+    product = Product.query.filter_by(barcode=barcode).first()
+    if product:
+        # Example logic: increase quantity by 1
+        product.quantity += 1
+        db.session.commit()
+        
+        # Emit update to clients
+        socketio.emit('inventory_update', {
+            'product_id': product.id,
+            'quantity': product.quantity
+        }, namespace='/inventory')
+
+        return jsonify({'status': 'success', 'product_id': product.id, 'quantity': product.quantity}), 200
+    else:
+        return jsonify({'status': 'error', 'message': 'Product not found'}), 404
 
 
 @app.route('/promote_to_admin/<username>', methods=['GET', 'POST'])

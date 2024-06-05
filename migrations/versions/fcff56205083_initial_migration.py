@@ -1,8 +1,8 @@
 """Initial migration
 
-Revision ID: 6e81dca0d702
+Revision ID: fcff56205083
 Revises: 
-Create Date: 2024-06-05 01:11:14.775333
+Create Date: 2024-06-05 02:28:50.311663
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '6e81dca0d702'
+revision = 'fcff56205083'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -63,13 +63,15 @@ def upgrade():
     sa.Column('price', sa.Float(), nullable=True),
     sa.Column('quantity', sa.Integer(), nullable=True),
     sa.Column('location', sa.String(length=100), nullable=True),
+    sa.Column('barcode', sa.String(length=64), nullable=True),
     sa.Column('category_id', sa.Integer(), nullable=True),
     sa.Column('supplier_id', sa.Integer(), nullable=True),
     sa.Column('purchase_order_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['category_id'], ['category.id'], name='fk_product_category'),
     sa.ForeignKeyConstraint(['purchase_order_id'], ['purchase_order.id'], name='fk_product_purchase_order'),
     sa.ForeignKeyConstraint(['supplier_id'], ['supplier.id'], name='fk_product_supplier'),
-    sa.PrimaryKeyConstraint('id')
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('barcode')
     )
     with op.batch_alter_table('product', schema=None) as batch_op:
         batch_op.create_index(batch_op.f('ix_product_name'), ['name'], unique=False)

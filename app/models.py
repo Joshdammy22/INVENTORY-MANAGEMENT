@@ -41,6 +41,7 @@ class Product(db.Model):
     price = db.Column(db.Float)
     quantity = db.Column(db.Integer, default=0)
     location = db.Column(db.String(100))
+    barcode = db.Column(db.String(64), unique=True)
     category_id = db.Column(db.Integer, db.ForeignKey('category.id', name='fk_product_category'))
     supplier_id = db.Column(db.Integer, db.ForeignKey('supplier.id', name='fk_product_supplier'))  # Named foreign key
     purchase_order_id = db.Column(db.Integer, db.ForeignKey('purchase_order.id', name='fk_product_purchase_order'))  # Named foreign key
