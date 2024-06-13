@@ -18,3 +18,5 @@ socketio = SocketIO(app)
 
 from app import routes, models, socketio_events
 
+with app.app_context():
+    db.create_all()

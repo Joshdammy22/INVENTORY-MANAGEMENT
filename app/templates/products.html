@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Products{% endblock %}
+{% block content %}
+<h1>Available Products</h1>
+<div class="row">
+    {% for product in products %}
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">{{ product.name }}</h5>
+                <p class="card-text">{{ product.description }}</p>
+                <p class="card-text"><strong>Price: </strong>${{ product.price }}</p>
+                <p class="card-text"><strong>Quantity: </strong>{{ product.quantity }}</p>
+                {% if product.quantity > 0 %}
+                <form action="{{ url_for('order', product_id=product.id) }}" method="POST">
+                    <div class="form-group">
+                        <label for="quantity">Quantity:</label>
+                        <input type="number" class="form-control" id="quantity" name="quantity" min="1" max="{{ product.quantity }}" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Order</button>
+                </form>
+                {% else %}
+                <button class="btn btn-secondary" disabled>Out of Stock</button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

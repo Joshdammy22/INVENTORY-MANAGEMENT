@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Inventory Management System{% endblock %}</title>
     <!-- Bootstrap CSS -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet"> 
     <!-- Custom CSS -->
-    <link href="{{ url_for('static', filename='styles.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
     <link rel="shortcut icon" href="{{ url_for('static', filename='inv.png') }}" type="image/x-icon">
 </head>
 <body>
@@ -22,28 +22,26 @@
                     <a class="nav-link" href="{{ url_for('home') }}">Home</a>
                 </li>
                 {% if current_user.is_authenticated %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('dashboard') }}">Dashboard</a>
-                    </li>
+                    
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('inventory') }}">Products</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('categories') }}">Categories</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('transactions') }}">Transactions</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('suppliers') }}">Suppliers</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('purchase_orders') }}">Purchase Orders</a>
-                    </li>
-                    {% if current_user.is_authenticated and current_user.is_admin %}
+                
+    
+                    {% if current_user.is_authenticated and current_user.role == "Admin"  %}
                         <li class="nav-item">
-                            <a class="nav-link" href="/admin">Admin</a>
+                            <a class="nav-link" href="{{ url_for('dashboard') }}">Dashboard</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('suppliers') }}">Suppliers</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('purchase_orders') }}">Purchase Orders</a>
+                        </li>
+                    
                     {% endif %}
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>

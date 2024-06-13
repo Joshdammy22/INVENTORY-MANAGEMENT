@@ -11,7 +11,7 @@ def role_required(role):
         @wraps(f)
         def decorated_function(*args, **kwargs):
             if role == 'Admin' and not current_user.is_admin:
-                flash('You do not have permission to access this page.')
+                flash('You do not have permission to access this page.', category="danger")
                 return redirect(url_for('home'))
             return f(*args, **kwargs)
         return decorated_function
@@ -48,9 +48,9 @@ def promote_to_admin(username):
     if user:
         user.is_admin = True
         db.session.commit()
-        flash(f'User {username} has been promoted to admin.')
+        flash(f'User {username} has been promoted to admin.', category="success")
     else:
-        flash(f'User {username} not found.')
+        flash(f'User {username} not found.', category="danger")
     return redirect(url_for('admin'))
 
 
@@ -61,7 +61,7 @@ def admin():
     form = AdminForm()  # Create an instance of the form
     if form.validate_on_submit():
         # Handle form submission, for example, creating a new user or other admin tasks
-        flash('Form submitted successfully.')
+        flash('Form submitted successfully.', category="success")
         return redirect(url_for('admin'))
     users = User.query.all()
     return render_template('admin.html', title='Admin', users=users, form=form)
@@ -74,9 +74,9 @@ def login():
         return redirect(url_for('home'))
     form = LoginForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(username=form.username.data).first()
+        user = User.query.filter((User.username == form.login.data) | (User.email == form.login.data)).first()
         if user is None or not user.check_password(form.password.data):
-            flash('Invalid username or password')
+            flash('Invalid username/email or password', category="danger")
             return redirect(url_for('login'))
         login_user(user, remember=form.remember_me.data)
         next_page = request.args.get('next')
@@ -86,19 +86,26 @@ def login():
     return render_template('login.html', title='Login', form=form)
 
 
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
         return redirect(url_for('home'))
     form = RegistrationForm()
     if form.validate_on_submit():
-        user = User(username=form.username.data, email=form.email.data)
+        user = User(
+            username=form.username.data,
+            email=form.email.data,
+            first_name=form.first_name.data,
+            last_name=form.last_name.data
+        )
         user.set_password(form.password.data)
         db.session.add(user)
         db.session.commit()
-        flash('Congratulations, you are now a registered user!')
+        flash('Congratulations, you are now a registered user!', category="success")
         return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
+
 
 
 @app.route('/logout')
@@ -107,6 +114,7 @@ def logout():
     return redirect(url_for('home'))
 
 @app.route('/dashboard')
+@role_required('admin')
 @login_required
 def dashboard():
     return render_template('dashboard.html', title='Dashboard')
@@ -132,11 +140,11 @@ def categories():
     categories = Category.query.all()
     return render_template('categories.html', title='Categories', categories=categories)
 
-@app.route('/transactions')
-@login_required
-def transactions():
-    transactions = Transaction.query.all()
-    return render_template('transactions.html', title='Transactions', transactions=transactions)
+# @app.route('/transactions')
+# @login_required
+# def transactions():
+#     transactions = Transaction.query.all()
+#     return render_template('transactions.html', title='Transactions', transactions=transactions)
 
 # @app.route('/product/add', methods=['GET', 'POST'])
 # @login_required
@@ -156,6 +164,7 @@ def transactions():
 
 
 @app.route('/add_product', methods=['GET', 'POST'])
+@role_required('admin')
 @login_required
 def add_product():
     form = ProductForm()
@@ -173,11 +182,13 @@ def add_product():
         )
         db.session.add(product)
         db.session.commit()
-        flash('Product added successfully!')
+        flash('Product added successfully!', category="success")
         return redirect(url_for('home'))
     return render_template('add_product.html', title='Add Product', form=form)
 
+
 @app.route('/add_category', methods=['GET', 'POST'])
+@role_required('admin')
 @login_required
 def add_category():
     form = CategoryForm()
@@ -185,13 +196,14 @@ def add_category():
         category = Category(name=form.name.data)
         db.session.add(category)
         db.session.commit()
-        flash('Category added successfully!')
+        flash('Category added successfully!', category="success")
         return redirect(url_for('home'))
     return render_template('add_category.html', title='Add Category', form=form)
 
 
 
 @app.route('/update_inventory', methods=['GET', 'POST'])
+@role_required('admin')
 @login_required
 def update_inventory():
     form = InventoryForm()
@@ -200,12 +212,13 @@ def update_inventory():
         inventory = Inventory(product_id=form.product.data, quantity=form.quantity.data)
         db.session.add(inventory)
         db.session.commit()
-        flash('Inventory updated successfully!')
+        flash('Inventory updated successfully!', category="success")
         return redirect(url_for('home'))
     return render_template('update_inventory.html', title='Update Inventory', form=form)
 
 
 @app.route('/product/<int:id>/edit', methods=['GET', 'POST'])
+@role_required('admin')
 @login_required
 def edit_product(id):
     product = Product.query.get_or_404(id)
@@ -215,28 +228,33 @@ def edit_product(id):
         product.quantity = int(request.form['quantity'])
         product.category_id = int(request.form['category'])
         db.session.commit()
-        flash('Product updated successfully!')
+        flash('Product updated successfully!', category="success")
         return redirect(url_for('inventory'))
     categories = Category.query.all()
     return render_template('edit_product.html', title='Edit Product', product=product, categories=categories)
 
+
 @app.route('/product/<int:id>/delete', methods=['POST'])
+@role_required('admin')
 @login_required
 def delete_product(id):
     product = Product.query.get_or_404(id)
     db.session.delete(product)
     db.session.commit()
-    flash('Product deleted successfully!')
+    flash('Product deleted successfully!', category="success")
     return redirect(url_for('inventory'))
 
 
 @app.route('/suppliers')
+@role_required('admin')
 @login_required
 def suppliers():
     suppliers = Supplier.query.all()
     return render_template('suppliers.html', title='Suppliers', suppliers=suppliers)
 
+
 @app.route('/purchase_orders')
+@role_required('admin')
 @login_required
 def purchase_orders():
     purchase_orders = PurchaseOrder.query.all()
@@ -255,13 +273,14 @@ def edit_user(user_id):
         user.email = form.email.data
         user.role = form.role.data
         db.session.commit()
-        flash('User updated successfully!')
+        flash('User updated successfully!', category="success")
         return redirect(url_for('admin'))
     elif request.method == 'GET':
         form.username.data = user.username
         form.email.data = user.email
         form.role.data = user.role
     return render_template('edit_user.html', title='Edit User', form=form)
+
 
 @app.route('/delete_user/<int:user_id>', methods=['POST'])
 @login_required
@@ -270,5 +289,5 @@ def delete_user(user_id):
     user = User.query.get_or_404(user_id)
     db.session.delete(user)
     db.session.commit()
-    flash('User deleted successfully!')
+    flash('User deleted successfully!', category="success")
     return redirect(url_for('admin'))

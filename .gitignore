@@ -7,3 +7,4 @@ instance/
 venv
 redundant.txt
 create_admin.py
+mysql

@@ -3,15 +3,17 @@ from app import db
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from app import login
+from flask_sqlalchemy import SQLAlchemy
+
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True, unique=True)
+    first_name = db.Column(db.String(64))
+    last_name = db.Column(db.String(64))
     password_hash = db.Column(db.String(128))
-    role = db.Column(db.String(5), default="User")
-    is_admin = db.Column(db.Boolean, default=False)
-
+    role = db.Column(db.String(5), default="Staff")
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -22,9 +24,20 @@ class User(UserMixin, db.Model):
     def __repr__(self):
         return f'<User {self.username}>'
 
-@login.user_loader
-def load_user(id):
-    return User.query.get(int(id))
+
+
+class Product(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64), index=True, unique=True)
+    description = db.Column(db.String(255))
+    price = db.Column(db.Float)
+    quantity = db.Column(db.Integer)
+    location = db.Column(db.String(128))
+    category_id = db.Column(db.Integer, db.ForeignKey('category.id'))
+    supplier_id = db.Column(db.Integer, db.ForeignKey('supplier.id'))
+
+    def __repr__(self):
+        return f'<Product {self.name}>'
 
 class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -34,57 +47,49 @@ class Category(db.Model):
     def __repr__(self):
         return f'<Category {self.name}>'
 
-class Product(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(64), index=True)
-    description = db.Column(db.String(200))
-    price = db.Column(db.Float)
-    quantity = db.Column(db.Integer, default=0)
-    location = db.Column(db.String(100))
-    barcode = db.Column(db.String(64), unique=True)
-    category_id = db.Column(db.Integer, db.ForeignKey('category.id', name='fk_product_category'))
-    supplier_id = db.Column(db.Integer, db.ForeignKey('supplier.id', name='fk_product_supplier'))  # Named foreign key
-    purchase_order_id = db.Column(db.Integer, db.ForeignKey('purchase_order.id', name='fk_product_purchase_order'))  # Named foreign key
-    inventory = db.relationship('Inventory', backref='product', lazy='dynamic')
-
-    def __repr__(self):
-        return f'<Product {self.name}>'
-
-class Inventory(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    product_id = db.Column(db.Integer, db.ForeignKey('product.id', name='fk_inventory_product'))
-    quantity = db.Column(db.Integer)
-    last_updated = db.Column(db.DateTime, default=datetime.utcnow)
-
-    def __repr__(self):
-        return f'<Inventory {self.product_id} - {self.quantity}>'
-
-class Transaction(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    product_id = db.Column(db.Integer, db.ForeignKey('product.id', name='fk_transaction_product'))
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id', name='fk_transaction_user'))
-    transaction_type = db.Column(db.String(64))  # 'check-in', 'check-out', 'adjustment'
-    quantity = db.Column(db.Integer)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
-
-    def __repr__(self):
-        return f'<Transaction {self.transaction_type} - {self.quantity}>'
-
 class Supplier(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), index=True, unique=True)
-    contact_info = db.Column(db.String(120))
-    products = db.relationship('Product', backref='supplier', lazy='dynamic')
+    location = db.Column(db.String(128))
+    address = db.Column(db.String(128))
+    email = db.Column(db.String(128))
+    phone_number = db.Column(db.String(15))
+    product = db.Column(db.String(64))
 
     def __repr__(self):
         return f'<Supplier {self.name}>'
 
-class PurchaseOrder(db.Model):
+class Inventory(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    supplier_id = db.Column(db.Integer, db.ForeignKey('supplier.id', name='fk_purchase_order_supplier'))
-    status = db.Column(db.String(64))  # 'pending', 'completed', 'cancelled'
-    order_date = db.Column(db.DateTime, default=datetime.utcnow)
-    products = db.relationship('Product', backref='purchase_order', lazy='dynamic')
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id'))
+    quantity = db.Column(db.Integer)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
     def __repr__(self):
-        return f'<PurchaseOrder {self.id} - {self.status}>'
+        return f'<Inventory {self.product_id} - {self.quantity}>'
+
+class PurchaseOrder(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id'))
+    quantity = db.Column(db.Integer)
+    date = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f'<PurchaseOrder {self.product_id} - {self.quantity}>'
+
+@login.user_loader
+def load_user(id):
+    return User.query.get(int(id))
+
+class Order(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id'))
+    quantity = db.Column(db.Integer)
+    status = db.Column(db.String(20), default='Pending')
+    order_date = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f'<Order {self.id}>'
+
+
