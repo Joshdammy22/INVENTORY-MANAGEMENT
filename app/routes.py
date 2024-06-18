@@ -118,7 +118,7 @@ def logout():
 @role_required('admin')
 @login_required
 def dashboard():
-    return render_template('dashboard.html', title='Dashboard')
+    return render_template('admin-dashboard.html', title='Dashboard')
 
 
 
@@ -260,6 +260,15 @@ def suppliers():
 def purchase_orders():
     purchase_orders = PurchaseOrder.query.all()
     return render_template('purchase_orders.html', title='Purchase Orders', purchase_orders=purchase_orders)
+
+
+
+@app.route('/staffs')
+@role_required('admin')
+@login_required
+def staffs():
+    staffs = User.query.all()
+    return render_template('staffs.html', title='Purchase Orders', staffs=staffs)
 
 
 

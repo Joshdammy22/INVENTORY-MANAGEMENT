@@ -1,0 +1,82 @@
+/* Navbar fallback styling */
+
+.navbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 1rem;
+    background-color: #e3f2fd;
+    border-bottom: 1px solid #e3e3e3;
+
+}
+
+.navbar-light .navbar-brand {
+    color: #007bff;
+}
+
+.navbar-toggler {
+    display: none;
+}
+
+.navbar-collapse {
+    display: flex;
+    flex-basis: auto;
+    flex-grow: 1;
+    align-items: center;
+}
+
+.nav-item {
+    list-style: none;
+}
+
+.nav-link {
+    display: block;
+    padding: 0.5rem 1rem;
+    color: #007bff;
+    text-decoration: none;
+}
+
+.nav-link:hover {
+    text-decoration: underline;
+}
+
+.alert {
+    padding: 0.75rem 1.25rem;
+    margin-bottom: 1rem;
+    border: 1px solid transparent;
+    border-radius: 0.25rem;
+}
+
+.alert-info {
+    color: #0c5460;
+    background-color: #d1ecf1;
+    border-color: #bee5eb;
+}
+
+.mt-4 {
+    margin-top: 1.5rem;
+}
+
+/* Media query for navbar-toggler */
+@media (max-width: 767.98px) {
+    .navbar-toggler {
+        display: block;
+        border: 1px solid #007bff;
+        background-color: #007bff;
+        color: white;
+        padding: 0.25rem 0.75rem;
+    }
+
+    .navbar-collapse {
+        flex-direction: column;
+    }
+
+    .navbar-collapse.collapse {
+        display: none;
+    }
+
+    .navbar-collapse.collapse.show {
+        display: flex;
+    }
+}
