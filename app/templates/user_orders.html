@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Products{% endblock %}
+{% block title %}My Orders{% endblock %}
 
 {% block nav %}
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -70,32 +70,20 @@
 
 
 {% block content %}
-<h1>Available Products</h1>
+<h1>My Orders</h1>
 <div class="grid-container">
-    <div class="grid-header">Name</div>
-    <div class="grid-header">Description</div>
-    <div class="grid-header">Price</div>
+    <div class="grid-header">#</div>
+    <div class="grid-header">Product</div>
     <div class="grid-header">Quantity</div>
-    <div class="grid-header">Actions</div>
+    <div class="grid-header">Status</div>
+    <div class="grid-header">Order Date</div>
 
-    {% for product in products %}
-        <div class="grid-item">{{ product.name }}</div>
-        <div class="grid-item">{{ product.description }}</div>
-        <div class="grid-item">${{ product.price }}</div>
-        <div class="grid-item">{{ product.quantity }}</div>
-        <div class="grid-item">
-            {% if current_user.role == 'Staff' and product.quantity > 0 %}
-            <form action="{{ url_for('order', product_id=product.id) }}" method="POST" style="display: inline;">
-                <div class="form-group">
-                    <input type="number" class="form-control" id="quantity" name="quantity" min="1" max="{{ product.quantity }}" required>
-                </div>
-                <button type="submit" class="btn btn-primary">Place Order</button>
-            </form>
-            {% endif %}
-            {% if current_user.role == 'Admin' %}
-            <a href="{{ url_for('manage_product', product_id=product.id) }}" class="btn btn-warning">Manage Product</a>
-            {% endif %}
-        </div>
+    {% for order in orders %}
+        <div class="grid-item">{{ order.id }}</div>
+        <div class="grid-item">{{ order.product.name }}</div>
+        <div class="grid-item">{{ order.quantity }}</div>
+        <div class="grid-item">{{ order.status }}</div>
+        <div class="grid-item">{{ order.order_date }}</div>
     {% endfor %}
 </div>
 
@@ -116,11 +104,15 @@
         padding: 10px;
         border: 1px solid #ccc;
     }
-    .form-group {
-        margin-bottom: 0;
-    }
 </style>
 {% endblock %}
+
+
+
+
+
+
+
 
 
 

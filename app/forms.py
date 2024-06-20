@@ -62,8 +62,12 @@ class TransactionForm(FlaskForm):
     submit = SubmitField('Log Transaction')
 
 class SupplierForm(FlaskForm):
-    name = StringField('Supplier Name', validators=[DataRequired()])
-    contact_info = StringField('Contact Info', validators=[DataRequired()])
+    name = StringField('Supplier Name', validators=[DataRequired(), Length(max=64)])
+    location = StringField('Location', validators=[DataRequired(), Length(max=128)])
+    address = StringField('Address', validators=[DataRequired(), Length(max=128)])
+    email = StringField('Email', validators=[DataRequired(), Email(), Length(max=128)])
+    phone_number = StringField('Phone Number', validators=[DataRequired(), Length(max=15)])
+    product = StringField('Product', validators=[DataRequired(), Length(max=64)])
     submit = SubmitField('Add Supplier')
 
 class PurchaseOrderForm(FlaskForm):

@@ -1,0 +1,28 @@
+I want the body of the table to be align column-wise with the table head:                                                    {% extends "base.html" %}
+
+{% block title %}Staffs {% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Staffs</h2>
+    <table class="table table-bordered">
+        <thead>
+            <th> ID </th>
+            <th> Name </th>
+            <th> Username </th>
+            <th> Email </th>
+            <th> Manage User </th>
+        </thead>
+        <tbody>
+            {% for staff in staffs %}
+                <td>{{ staff.id }}</td>
+                <td>{{ staff.last_name }} {{ staff.first_name }}</td>
+                <td>{{ staff.username }}</td>
+                <td>{{ staff.email }}</td>
+                <td> Edit User</a></td> 
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

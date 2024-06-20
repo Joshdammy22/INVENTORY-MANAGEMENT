@@ -1,27 +1,116 @@
 {% extends "base.html" %}
 {% block title %}My Orders{% endblock %}
+
+{% block nav %}
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="{{ url_for('home') }}">Inventory Management System</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav" >
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('home') }}">Home</a>
+            </li>
+            {% if current_user.is_authenticated %}
+                
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('available_products') }}">Products</a>
+                </li>
+                
+                
+
+                {% if current_user.is_authenticated and current_user.role == "Staff"  %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('user_orders') }}">My Orders</a>
+                </li>
+                {% endif %}
+                
+                {% if current_user.is_authenticated and current_user.role == "Admin"  %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('dashboard') }}">Dashboard</a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('suppliers') }}">Suppliers</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('purchase_orders') }}">Purchase Orders</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('categories') }}">Categories</a>
+                    </li>
+                
+                {% endif %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+                </li>
+            {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('login') }}">Login</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('register') }}">Register</a>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+</nav>
+<div class="container mt-4">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="alert alert-info" role="alert">
+                {% for category, message in messages %}
+                    <p>{{ message }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+{% endblock %}
+
+
 {% block content %}
 <h1>My Orders</h1>
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>#</th>
-            <th>Product</th>
-            <th>Quantity</th>
-            <th>Status</th>
-            <th>Order Date</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for order in orders %}
-        <tr>
-            <td>{{ order.id }}</td>
-            <td>{{ order.product.name }}</td>
-            <td>{{ order.quantity }}</td>
-            <td>{{ order.status }}</td>
-            <td>{{ order.order_date }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<div class="grid-container">
+    <div class="grid-header">#</div>
+    <div class="grid-header">Product</div>
+    <div class="grid-header">Quantity</div>
+    <div class="grid-header">Status</div>
+    <div class="grid-header">Order Date</div>
+
+    {% for order in orders %}
+        <div class="grid-item">{{ order.id }}</div>
+        <div class="grid-item">{{ order.product.name }}</div>
+        <div class="grid-item">{{ order.quantity }}</div>
+        <div class="grid-item">{{ order.status }}</div>
+        <div class="grid-item">{{ order.order_date }}</div>
+    {% endfor %}
+</div>
+
+<style>
+    .grid-container {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 10px;
+        margin-top: 20px;
+    }
+    .grid-header {
+        font-weight: bold;
+        background-color: #f1f1f1;
+        padding: 10px;
+        border: 1px solid #ccc;
+    }
+    .grid-item {
+        padding: 10px;
+        border: 1px solid #ccc;
+    }
+</style>
 {% endblock %}
+
+
+
+
+
+
+
+

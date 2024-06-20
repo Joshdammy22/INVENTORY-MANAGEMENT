@@ -1,6 +1,9 @@
 {% extends "base.html" %}
-{% block title %}Products{% endblock %}
 
+{% block title %}Add Supplier - Inventory Management System{% endblock %}
+
+
+<!-- Navigation Bar -->
 {% block nav %}
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <a class="navbar-brand" href="{{ url_for('home') }}">Inventory Management System</a>
@@ -56,76 +59,62 @@
         </ul>
     </div>
 </nav>
-<div class="container mt-4">
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <div class="alert alert-info" role="alert">
-                {% for category, message in messages %}
-                    <p>{{ message }}</p>
-                {% endfor %}
-            </div>
-        {% endif %}
-    {% endwith %}
+
 {% endblock %}
+
+
 
 
 {% block content %}
-<h1>Available Products</h1>
-<div class="grid-container">
-    <div class="grid-header">Name</div>
-    <div class="grid-header">Description</div>
-    <div class="grid-header">Price</div>
-    <div class="grid-header">Quantity</div>
-    <div class="grid-header">Actions</div>
-
-    {% for product in products %}
-        <div class="grid-item">{{ product.name }}</div>
-        <div class="grid-item">{{ product.description }}</div>
-        <div class="grid-item">${{ product.price }}</div>
-        <div class="grid-item">{{ product.quantity }}</div>
-        <div class="grid-item">
-            {% if current_user.role == 'Staff' and product.quantity > 0 %}
-            <form action="{{ url_for('order', product_id=product.id) }}" method="POST" style="display: inline;">
-                <div class="form-group">
-                    <input type="number" class="form-control" id="quantity" name="quantity" min="1" max="{{ product.quantity }}" required>
-                </div>
-                <button type="submit" class="btn btn-primary">Place Order</button>
-            </form>
-            {% endif %}
-            {% if current_user.role == 'Admin' %}
-            <a href="{{ url_for('manage_product', product_id=product.id) }}" class="btn btn-warning">Manage Product</a>
-            {% endif %}
+<div class="container mt-5">
+    <h2>Add New Supplier</h2>
+    <form method="POST" action="{{ url_for('add_supplier') }}">
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+            {{ form.name.label(class="form-label") }}
+            {{ form.name(class="form-control") }}
+            {% for error in form.name.errors %}
+                <div class="alert alert-danger">{{ error }}</div>
+            {% endfor %}
         </div>
-    {% endfor %}
+        <div class="form-group">
+            {{ form.location.label(class="form-label") }}
+            {{ form.location(class="form-control") }}
+            {% for error in form.location.errors %}
+                <div class="alert alert-danger">{{ error }}</div>
+            {% endfor %}
+        </div>
+        <div class="form-group">
+            {{ form.address.label(class="form-label") }}
+            {{ form.address(class="form-control") }}
+            {% for error in form.address.errors %}
+                <div class="alert alert-danger">{{ error }}</div>
+            {% endfor %}
+        </div>
+        <div class="form-group">
+            {{ form.email.label(class="form-label") }}
+            {{ form.email(class="form-control") }}
+            {% for error in form.email.errors %}
+                <div class="alert alert-danger">{{ error }}</div>
+            {% endfor %}
+        </div>
+        <div class="form-group">
+            {{ form.phone_number.label(class="form-label") }}
+            {{ form.phone_number(class="form-control") }}
+            {% for error in form.phone_number.errors %}
+                <div class="alert alert-danger">{{ error }}</div>
+            {% endfor %}
+        </div>
+        <div class="form-group">
+            {{ form.product.label(class="form-label") }}
+            {{ form.product(class="form-control") }}
+            {% for error in form.product.errors %}
+                <div class="alert alert-danger">{{ error }}</div>
+            {% endfor %}
+        </div>
+        <div class="form-group">
+            {{ form.submit(class="btn btn-primary") }}
+        </div>
+    </form>
 </div>
-
-<style>
-    .grid-container {
-        display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        gap: 10px;
-        margin-top: 20px;
-    }
-    .grid-header {
-        font-weight: bold;
-        background-color: #f1f1f1;
-        padding: 10px;
-        border: 1px solid #ccc;
-    }
-    .grid-item {
-        padding: 10px;
-        border: 1px solid #ccc;
-    }
-    .form-group {
-        margin-bottom: 0;
-    }
-</style>
 {% endblock %}
-
-
-
-
-
-
-
-

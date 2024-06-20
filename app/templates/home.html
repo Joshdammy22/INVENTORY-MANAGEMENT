@@ -2,16 +2,194 @@
 
 {% block title %}Home - Inventory Management System{% endblock %}
 
+
+<!-- Navigation Bar -->
+{% block nav %}
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="{{ url_for('home') }}">Inventory Management System</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav" >
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('home') }}">Home</a>
+            </li>
+            {% if current_user.is_authenticated %}
+                
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('available_products') }}">Products</a>
+                </li>
+                
+                
+
+                {% if current_user.is_authenticated and current_user.role == "Staff"  %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('user_orders') }}">My Orders</a>
+                </li>
+                {% endif %}
+                
+                {% if current_user.is_authenticated and current_user.role == "Admin"  %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('dashboard') }}">Dashboard</a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('suppliers') }}">Suppliers</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('purchase_orders') }}">Purchase Orders</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('categories') }}">Categories</a>
+                    </li>
+                
+                {% endif %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+                </li>
+            {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('login') }}">Login</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('register') }}">Register</a>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+</nav>
+
+{% endblock %}
+
+
+
+
+
+
 {% block content %}
-<div class="jumbotron text-center">
-    <h1 class="display-4">Welcome to the Inventory Management System</h1>
-    <p class="lead">Manage your inventory efficiently and effectively.</p>
-    {% if not current_user.is_authenticated %}
+<!-- Header Section -->
+<header class="bg-primary text-white text-center py-5 mb-4">
+    <div class="container">
+        <h1 class="font-weight-light">Welcome to the Inventory Management System</h1>
+        <p class="lead">Manage your inventory efficiently and effectively.</p>
+        {% if not current_user.is_authenticated %}
+            <hr class="my-4">
+            <p>
+                <a class="btn btn-light btn-lg" href="{{ url_for('register') }}" role="button">Register</a>
+                <a class="btn btn-secondary btn-lg" href="{{ url_for('login') }}" role="button">Login</a>
+            </p>
+        {% endif %}
+    </div>
+</header>
+
+<!-- Features Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <img src="path/to/image1.jpg" class="card-img-top" alt="...">
+                    <div class="card-body">
+                        <h5 class="card-title">Feature One</h5>
+                        <p class="card-text">Description of feature one.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <img src="path/to/image2.jpg" class="card-img-top" alt="...">
+                    <div class="card-body">
+                        <h5 class="card-title">Feature Two</h5>
+                        <p class="card-text">Description of feature two.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <img src="path/to/image3.jpg" class="card-img-top" alt="...">
+                    <div class="card-body">
+                        <h5 class="card-title">Feature Three</h5>
+                        <p class="card-text">Description of feature three.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action Section -->
+{% if current_user.is_authenticated %}
+        <!-- Call to Action Section for Authenticated Users -->
+        <div class="alert alert-success" role="alert">
+            <h4 class="alert-heading">Welcome back, {{ current_user.username }}!</h4>
+            <p>You have successfully logged in.</p>
+            <hr>
+            {% if current_user.role == 'Admin' %}
+                <p class="mb-0">Check out the latest updates or go directly to your <a href="{{ url_for('dashboard') }}" class="alert-link">Dashboard</a>.</p>
+            {% else %}
+                <p class="mb-0">View available products or place an order directly from the <a href="{{ url_for('available_products') }}" class="alert-link">Products Page</a>.</p>
+            {% endif %}
+        </div>
+        <div class="row">
+            {% if current_user.role == 'Admin' %}
+                <div class="col-md-4">
+                    <div class="card mb-4 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">Manage Inventory</h5>
+                            <p class="card-text">Add, update, and delete items in your inventory.</p>
+                            <a href="{{ url_for('inventory') }}" class="btn btn-primary">Go to Inventory</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card mb-4 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">View Reports</h5>
+                            <p class="card-text">Generate and view reports of your inventory.</p>
+                            <a href="{{ url_for('view_reports') }}" class="btn btn-secondary">View Reports</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card mb-4 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">Account Settings</h5>
+                            <p class="card-text">Update your personal information and settings.</p>
+                            <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Account Settings</a>
+                        </div>
+                    </div>
+                </div>
+            {% elif current_user.role == 'Staff' %}
+                <div class="col-md-6">
+                    <div class="card mb-4 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">View Products</h5>
+                            <p class="card-text">Browse available products in the inventory.</p>
+                            <a href="{{ url_for('available_products') }}" class="btn btn-primary">View Products</a>
+                        </div>
+                    </div>
+                </div>
+            
+            {% endif %}
+        </div>
+    {% else %}
         <hr class="my-4">
-        <p>
-            <a class="btn btn-primary btn-lg" href="{{ url_for('register') }}" role="button">Register</a>
-            <a class="btn btn-secondary btn-lg" href="{{ url_for('login') }}" role="button">Login</a>
-        </p>
+        <section class="py-5 bg-light">
+            <div class="container text-center">
+                <h2 class="font-weight-light">Ready to get started?</h2>
+                <p class="lead">Sign up now and manage your inventory like a pro!</p>
+                <a class="btn btn-primary btn-lg" href="{{ url_for('register') }}" role="button">Register Now</a>
+            </div>
+        </section>
     {% endif %}
 </div>
+
+
+
 {% endblock %}
+
+
+
+
+

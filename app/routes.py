@@ -19,6 +19,28 @@ def role_required(role):
     return wrapper
 
 
+@app.route('/add_supplier', methods=['GET', 'POST'])
+def add_supplier():
+    form = SupplierForm()
+    if form.validate_on_submit():
+        supplier = Supplier(
+            name=form.name.data,
+            location=form.location.data,
+            address=form.address.data,
+            email=form.email.data,
+            phone_number=form.phone_number.data,
+            product=form.product.data
+        )
+        db.session.add(supplier)
+        db.session.commit()
+        flash('Supplier added successfully!', 'success')
+        return redirect(url_for('home'))
+    return render_template('add_supplier.html', form=form)
+
+
+
+
+
 @app.route('/process_barcode', methods=['POST'])
 def process_barcode():
     data = request.get_json()
@@ -66,6 +88,51 @@ def admin():
         return redirect(url_for('admin'))
     users = User.query.all()
     return render_template('admin.html', title='Admin', users=users, form=form)
+
+
+
+
+from flask import flash, redirect, render_template, request, url_for
+from flask_login import current_user, login_user
+from urllib.parse import urlsplit
+from app import app, db
+from app.forms import LoginForm
+from app.models import User
+
+# @app.route('/login', methods=['GET', 'POST'])
+# def login():
+#     if current_user.is_authenticated:
+#         return redirect(url_for('home'))
+    
+#     form = LoginForm()
+#     if form.validate_on_submit():
+#         # Logging the input for debugging
+#         print(f"Login form data: {form.login.data}")
+        
+#         # Query the user by username or email
+#         user = User.query.filter((User.username == form.login.data) | (User.email == form.login.data)).first()
+        
+#         if user is None:
+#             # Logging the case when user is not found
+#             print(f"No user found with username/email: {form.login.data}")
+#         elif not user.check_password(form.password.data):
+#             # Logging the case when password is incorrect
+#             print(f"Password incorrect for user: {form.login.data}")
+
+#         if user is None or not user.check_password(form.password.data):
+#             flash('Invalid username/email or password', category="danger")
+#             return redirect(url_for('login'))
+        
+#         login_user(user, remember=form.remember_me.data)
+        
+#         next_page = request.args.get('next')
+#         if not next_page or urlsplit(next_page).netloc != '':
+#             next_page = url_for('home')
+        
+#         return redirect(next_page)
+    
+#     return render_template('login.html', title='Login', form=form)
+
 
 
 
@@ -118,7 +185,7 @@ def logout():
 @role_required('admin')
 @login_required
 def dashboard():
-    return render_template('admin-dashboard.html', title='Dashboard')
+    return render_template('dashboard.html', title='Dashboard')
 
 
 
@@ -133,6 +200,19 @@ def home():
 def inventory():
     products = Product.query.all()
     return render_template('inventory.html', title='Inventory', products=products)
+
+
+@app.route('/view_reports')
+@role_required('admin')
+@login_required
+def view_reports():
+    return render_template('view_reports.html', title='View Reports')
+
+@app.route('/products')
+@login_required
+def available_products():
+    products = Product.query.all()
+    return render_template('products.html', title='Availalable Products', products=products)
 
 
 @app.route('/categories')
@@ -261,14 +341,21 @@ def purchase_orders():
     purchase_orders = PurchaseOrder.query.all()
     return render_template('purchase_orders.html', title='Purchase Orders', purchase_orders=purchase_orders)
 
+@app.route('/user_orders')
+@login_required
+def user_orders():
+    user_orders = PurchaseOrder.query.all()
+    products_user = Product.query.all()
+    return render_template('user_orders.html', title='My Orders', my_orders=user_orders, products=products_user)
+
 
 
 @app.route('/staffs')
 @role_required('admin')
 @login_required
 def staffs():
-    staffs = User.query.all()
-    return render_template('staffs.html', title='Purchase Orders', staffs=staffs)
+    users = User.query.all()
+    return render_template('staffs.html', staffs=users)
 
 
 
@@ -286,10 +373,10 @@ def edit_user(user_id):
         flash('User updated successfully!', category="success")
         return redirect(url_for('admin'))
     elif request.method == 'GET':
-        form.username.data = user.username
-        form.email.data = user.email
-        form.role.data = user.role
-    return render_template('edit_user.html', title='Edit User', form=form)
+        form.username.data = current_user.username
+        form.email.data = current_user.email
+        form.role.data = current_user.role
+    return render_template('manage_user.html', title='Edit User', form=form)
 
 
 @app.route('/delete_user/<int:user_id>', methods=['POST'])
